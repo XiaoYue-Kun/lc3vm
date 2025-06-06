@@ -572,8 +572,11 @@ void handle_command(Command cmd) {
     if (strcmp(cmd.command, "load") == 0 || strcmp(cmd.command, "l") == 0) {
         if (cmd.arg_count >= 1) {
             for(int i = 0; i < cmd.arg_count; i++){
-                printf("Loading file: %s\n", cmd.args[i]);
-                read_image(cmd.args[i]);
+                if(!read_image(cmd.args[i])){
+                    printf("Error: failed to load image: %s\n", cmd.args[i]);
+                    return;
+                }
+                printf("Loaded file: %s\n", cmd.args[i]);
             }
             printf("Set PC to x%x\n", reg[R_PC]);
         } else {
@@ -614,7 +617,7 @@ void handle_command(Command cmd) {
         }
     } else if (strcmp(cmd.command, "reset_reg") == 0 || strcmp(cmd.command, "r") == 0) {
         if(cmd.arg_count != 0){
-            printf("Error: Reset register should not have any argument\n");
+            printf("Error: reset register should not have any argument\n");
             return;
         }
         reg[R_R0] = 0;
@@ -703,9 +706,10 @@ int main(int argc, const char* argv[]){
     if(argc >= 2){
         for(int i=1; i<argc; i++){
             if(!read_image(argv[i])){
-                printf("failed to load image: %s\n", argv[i]);
+                printf("Failed to load image: %s\n", argv[i]);
                 exit(1);
             }
+            printf("Loaded file: %s\n", argv[i]);
         }
         printf("set pc to x%x\n", reg[R_PC]);
     }
